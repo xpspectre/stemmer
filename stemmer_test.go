@@ -13,13 +13,22 @@ func TestIsVowel(t *testing.T) {
 	}
 }
 
+func TestIsLiEnding(t *testing.T) {
+	letters := []rune{'a', 'b', 'c', 't'}
+	isLiEnds := []bool{false, false, true, true}
+	for i, letter := range letters {
+		assert.Equal(t, isLiEnds[i], IsLiEnding(letter))
+	}
+}
+
 // See http://snowball.tartarus.org/texts/r1r2.html
 func TestGetR1R2(t *testing.T) {
 	words := []string{"beautiful", "beauty", "beau", "animadversion", "sprinkled", "eucharist"}
 	r1s := []string{"iful", "y", "", "imadversion", "kled", "harist"}
 	r2s := []string{"ul", "", "", "adversion", "", "ist"}
 	for i, word := range words {
-		r1, r2 := GetR1R2(word)
+		r1 := GetR1(word)
+		_, r2 := GetR1R2(word)
 		assert.Equal(t, r1s[i], r1)
 		assert.Equal(t, r2s[i], r2)
 	}
@@ -107,4 +116,33 @@ func TestStep1c(t *testing.T) {
 	for i, word := range words {
 		assert.Equal(t, newWords[i], Step1c(word))
 	}
+}
+
+func TestStep2(t *testing.T) {
+	words := []string{"additional", "relational", "yogi", "stimuli"}
+	newWords := []string{"addition", "relate", "yogi", "stimuli"}
+	for i, word := range words {
+		assert.Equal(t, newWords[i], Step2(word))
+	}
+}
+
+func TestStep3(t *testing.T) {
+	// couldn't think of a real word for the last one
+	words := []string{"conditional", "procrastinative"}
+	newWords := []string{"condition", "procrastin"}
+	for i, word := range words {
+		assert.Equal(t, newWords[i], Step3(word))
+	}
+}
+
+func TestStep4(t *testing.T) {
+	words := []string{"vocalize", "materialize", "vocation"}
+	newWords := []string{"vocal", "material", "vocation"}
+	for i, word := range words {
+		assert.Equal(t, newWords[i], Step4(word))
+	}
+}
+
+func TestStep5(t *testing.T) {
+
 }

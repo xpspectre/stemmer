@@ -15,6 +15,50 @@ const vowels = "aeiuoy"
 var double = []string{"bb", "dd", "ff", "gg", "mm", "nn", "pp", "rr", "tt"}
 const liend = "cdeghkmnrt"
 
+var step2Map = map[string]string{
+	"tional": "tion",
+	"enci": "ence",
+	"anci": "ance",
+	"abli": "able",
+	"entli": "ent",
+	"izer": "ize",
+	"ization": "ize",
+	"ational": "ate",
+	"ation": "age",
+	"ator": "ate",
+	"alism": "al",
+	"aliti": "al",
+	"alli" : "al",
+	"fulness": "ful",
+	"ousli": "ous",
+	"ousness": "ous",
+	"iveness": "ive",
+	"iviti": "ive",
+	"biliti": "ble",
+	"bli": "ble",
+	"fulli": "ful",
+	"lessli": "less",
+	"ogi": "og", // special handling
+	"li": "", // special handling
+}
+var step2Slice = make([]string, len(step2Map)) // holds just the keys of above
+
+var step3Map = map[string]string{
+	"tional": "tion",
+	"ational": "ate",
+	"alize": "al",
+	"icate": "ic",
+	"iciti": "ic",
+	"ical": "ic",
+	"ful": "",
+	"ness": "",
+	"ative": "",
+}
+var step3Slice = make([]string, len(step3Map))
+
+var step4Words = []string{"al", "ance", "ence", "er", "ic", "able", "ible", "ant", "ement", "ment", "ent", "ism",
+	"ate", "iti", "ous", "ive", "ize"}
+
 // Sort strings by length interfaces
 //	Modified from https://gobyexample.com/sorting-by-functions
 type ByDecLength []string
@@ -28,6 +72,21 @@ func (s ByDecLength) Less(i, j int) bool {
 	return len(s[i]) > len(s[j]) // reverse order for decreasing sort
 }
 
+func init() {
+	// Get slices of map keys for suffix lookups
+	i := 0
+	for suffix := range step2Map {
+		step2Slice[i] = suffix
+		i++
+	}
+	
+	i = 0
+	for suffix := range step3Map {
+		step3Slice[i] = suffix
+		i++
+	}
+}
+
 func Stem(s string) (string)  {
 	// Words of <= 2 letters - leave as is
 	if len(s) <= 2 {
@@ -37,14 +96,16 @@ func Stem(s string) (string)  {
 	// Remove initial apostrophe
 	s = strings.TrimPrefix(s, "'")
 	
-	// Set consonant y's - initial y or y after a vowel
-	// 	Denote consonants as capitalized Y
 	s = SetConsonantY(s)
 	
 	s = Step0(s)
 	s = Step1a(s)
 	s = Step1b(s)
 	s = Step1c(s)
+	s = Step2(s)
+	s = Step3(s)
+	s = Step4(s)
+	s = Step5(s)
 	
 	return s
 }
@@ -86,7 +147,7 @@ func Step1b(s string) (string)  {
 	suffix := FindLongestSuffix(s, []string{"eed", "eedly", "ed", "edly", "ing", "ingly"})
 	switch {
 	case suffix == "eed" || suffix == "eedly":
-		R1, _ := GetR1R2(s)
+		R1 := GetR1(s)
 		if strings.HasSuffix(R1, suffix) {
 			return strings.TrimSuffix(s, suffix) + "ee"
 		} else {
@@ -129,8 +190,84 @@ func Step1c(s string) (string) {
 	return string(r)
 }
 
+
+
+func Step2(s string) (string){
+	R1 := GetR1(s)
+	suffix := FindLongestSuffix(R1, step2Slice)
+	if suffix != "" {
+		s_ := strings.TrimSuffix(s, suffix)
+		switch suffix {
+		case "ogi":
+			r := []rune(s_)
+			if r[len(r)-1] == 'l' {
+				return s_ + "og"
+			} else {
+				return s
+			}
+		case "li":
+			r := []rune(s_)
+			if IsLiEnding(r[len(r)-1]) {
+				return s_
+			} else {
+				return s
+			}
+		default:
+			return s_ + step2Map[suffix]
+		}
+	}
+	return s
+}
+
+func Step3(s string) (string) {
+	R1 := GetR1(s)
+	suffix := FindLongestSuffix(R1, step3Slice)
+	if suffix != "" {
+		s_ := strings.TrimSuffix(s, suffix)
+		switch suffix {
+		case "ative":
+			_, R2 := GetR1R2(s)
+			if strings.HasSuffix(R2, "ative") {
+				return s_
+			} else {
+				return s
+			}
+		default:
+			return s_ + step2Map[suffix]
+		}
+	}
+	return s
+}
+
+func Step4(s string) (string) {
+	_, R2 := GetR1R2(s)
+	suffix := FindLongestSuffix(R2, step4Words)
+	if suffix != "" {
+		return strings.TrimSuffix(s, suffix)
+	}
+	if strings.HasSuffix(R2, "ion") {
+		s_ := strings.TrimSuffix(s, suffix)
+		r := []rune(s_)
+		rLast := r[len(r)-1]
+		if rLast == 's' || rLast == 't' {
+			return s_
+		} else {
+			return s
+		}
+	}
+	return s
+}
+
+func Step5(s string) (string) {
+	return s
+}
+
 func IsVowel(c rune) (bool) {
 	return strings.ContainsAny(string(c), vowels)
+}
+
+func IsLiEnding(c rune) (bool) {
+	return strings.ContainsAny(string(c), liend)
 }
 
 // Search ends of words only
@@ -156,13 +293,15 @@ func IsEndShortSyllable(s string) (bool) {
 
 // Short word ends in a short syllable and R1 is null
 func IsShortWord(s string)(bool) {
-	R1, _ := GetR1R2(s)
+	R1 := GetR1(s)
 	if IsEndShortSyllable(s) && R1 == "" {
 		return true
 	}
 	return false
 }
 
+// Set consonant y's - initial y or y after a vowel
+// 	Denote consonants as capitalized Y
 func SetConsonantY(s string) (string) {
 	r := []rune(s)
 	prevIsVowel := false
@@ -197,10 +336,13 @@ func FindLongestSuffix(s string, suffixes []string) (string) {
 // http://snowball.tartarus.org/texts/r1r2.html
 // R1 is the region after the 1st non-vowel following a vowel, or null region at the end of the word if there isn't	a non-vowel
 // R2 is the region after the 1st non-vowel following a vowel in R1, or null region at the end of the word if there isn't a non-vowel
+func GetR1(s string) (string) {
+	return GetR1R2End(s)
+}
+
 func GetR1R2(s string) (string, string) {
-	R1 := GetR1R2End(s)
-	R2 := GetR1R2End(R1)
-	return R1, R2
+	R1 := GetR1(s)
+	return R1, GetR1R2End(R1)
 }
 
 // Getting R1 and R2 is just applying the same procedure
