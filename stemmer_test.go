@@ -146,3 +146,44 @@ func TestStep4(t *testing.T) {
 func TestStep5(t *testing.T) {
 
 }
+
+func TestStemExceptions(t *testing.T) {
+	words := []string{"skis", "gently", "bias"}
+	newWords := []string{"ski", "gentl", "bias"}
+	for i, word := range words {
+		assert.Equal(t, newWords[i], Stem(word))
+	}
+}
+
+func TestStemExceptions2(t *testing.T) {
+	words := []string{"earrings"}
+	newWords := []string{"earring"}
+	for i, word := range words {
+		assert.Equal(t, newWords[i], Stem(word))
+	}
+}
+
+// Overstemming corner case
+//	Also useful for testing a bunch of the steps - making sure they refer to the right maps and such
+func TestOverstem(t *testing.T) {
+	words := []string{"generate", "generates", "generated", "generating",
+		"general", "generally",
+		"generic", "generically",
+		"generous", "generously"}
+	newWords := []string{"generat", "generat", "generat", "generat",
+		"general", "general",
+		"generic", "generic",
+		"generous", "generous"}
+	for i, word := range words {
+		assert.Equal(t, newWords[i], Stem(word))
+	}
+}
+
+// Basic tests to make sure the whole thing runs
+func TestStem(t *testing.T) {
+	words := []string{"the"}
+	newWords := []string{"the"}
+	for i, word := range words {
+		assert.Equal(t, newWords[i], Stem(word))
+	}
+}

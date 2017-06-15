@@ -8,9 +8,9 @@ import (
 )
 
 func main()  {
-	R1, R2 := stemmer.GetR1R2("vocation")
+	R1, R2 := stemmer.GetR1R2("generically")
 	fmt.Println(R1)
 	fmt.Println(R2)
-	fmt.Println(stemmer.Step4("vocation"))
+	fmt.Println(stemmer.Stem("generically"))
 	//fmt.Println(strings.HasSuffix("", "ing"))
 }

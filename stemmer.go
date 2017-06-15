@@ -3,6 +3,8 @@
 // *Also see: http://snowball.tartarus.org/algorithms/english/stemmer.html
 // This is for English, assuming words are fed into it so ASCII only (probably)
 // Assume inputs words to Stem are lowercase
+// A smarter stemmer would return metadata about what the removed suffixes did
+//	Has this improved performance in any testing?
 
 package stemmer
 
@@ -59,7 +61,43 @@ var step3Slice = make([]string, len(step3Map))
 var step4Words = []string{"al", "ance", "ence", "er", "ic", "able", "ible", "ant", "ement", "ment", "ent", "ism",
 	"ate", "iti", "ous", "ive", "ize"}
 
-// Sort strings by length interfaces
+// Do the following subs immediately and return
+var exceptions = map[string]string{
+	"skis": "ski", // start special changes
+	"skies": "sky",
+	"dying": "die",
+	"lying": "lie",
+	"tying": "tie",
+	"idly": "idl", // start special -ly cases
+	"gently": "gentl",
+	"ugly": "ugli",
+	"early": "earli",
+	"only": "onli",
+	"singly": "singl",
+	"sky": "sky", // start invariant forms
+	"news": "news",
+	"howe": "howe",
+	"atlas": "atlas", // looks like plural but not
+	"cosmos": "cosmos",
+	"bias": "bias",
+	"andes": "andes",
+}
+
+// Leave these invariant after Step1a and return
+var exceptions2 = map[string]string{
+	"inning": "inning",
+	"outing": "outing",
+	"canning": "canning",
+	"herring": "herring",
+	"earring": "earring",
+	"proceed": "proceed",
+	"exceed": "exceed",
+	"succeed": "succeed"}
+
+// Overstemming can result from these prefixes
+var R1Exceptions = []string{"gener", "commun", "arsen"}
+
+// Sort strings by decreasing length interfaces
 //	Modified from https://gobyexample.com/sorting-by-functions
 type ByDecLength []string
 func (s ByDecLength) Len() int {
@@ -93,6 +131,11 @@ func Stem(s string) (string)  {
 		return s
 	}
 	
+	// Exceptions directly mapped
+	if stemmed, ok := exceptions[s]; ok {
+		return stemmed
+	}
+	
 	// Remove initial apostrophe
 	s = strings.TrimPrefix(s, "'")
 	
@@ -100,12 +143,21 @@ func Stem(s string) (string)  {
 	
 	s = Step0(s)
 	s = Step1a(s)
+	
+	// 2nd set of exceptions after trimming last 's'
+	if stemmed, ok := exceptions2[s]; ok {
+		return stemmed
+	}
+	
 	s = Step1b(s)
 	s = Step1c(s)
 	s = Step2(s)
 	s = Step3(s)
 	s = Step4(s)
 	s = Step5(s)
+	
+	// Convert consonanted Y back to y
+	s = strings.Replace(s , "Y", "y", -1)
 	
 	return s
 }
@@ -190,8 +242,6 @@ func Step1c(s string) (string) {
 	return string(r)
 }
 
-
-
 func Step2(s string) (string){
 	R1 := GetR1(s)
 	suffix := FindLongestSuffix(R1, step2Slice)
@@ -233,7 +283,7 @@ func Step3(s string) (string) {
 				return s
 			}
 		default:
-			return s_ + step2Map[suffix]
+			return s_ + step3Map[suffix]
 		}
 	}
 	return s
@@ -259,6 +309,32 @@ func Step4(s string) (string) {
 }
 
 func Step5(s string) (string) {
+	if strings.HasSuffix(s, "e") {
+		R1, R2 := GetR1R2(s)
+		if strings.HasSuffix(R2, "e") {
+			return strings.TrimSuffix(s, "e")
+		}
+		if strings.HasSuffix(R1, "e") {
+			s_ := strings.TrimSuffix(s, "e")
+			if !IsEndShortSyllable(s_) {
+				return s_
+			} else{
+				return s
+			}
+		}
+		return s
+	}
+	if strings.HasSuffix(s, "l") {
+		_, R2 := GetR1R2(s)
+		s_ := strings.TrimSuffix(s, "l")
+		r := []rune(s_)
+		rLast := r[len(r)-1]
+		if strings.HasSuffix(R2, "l") && rLast == 'l' {
+			return s_
+		} else {
+			return s
+		}
+	}
 	return s
 }
 
@@ -337,6 +413,12 @@ func FindLongestSuffix(s string, suffixes []string) (string) {
 // R1 is the region after the 1st non-vowel following a vowel, or null region at the end of the word if there isn't	a non-vowel
 // R2 is the region after the 1st non-vowel following a vowel in R1, or null region at the end of the word if there isn't a non-vowel
 func GetR1(s string) (string) {
+	// Handle 3 corner cases
+	for i := 0; i < len(R1Exceptions); i++ {
+		if strings.HasPrefix(s, R1Exceptions[i]) {
+			return strings.TrimPrefix(s, R1Exceptions[i])
+		}
+	}
 	return GetR1R2End(s)
 }
 
