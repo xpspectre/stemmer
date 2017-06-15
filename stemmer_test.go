@@ -3,7 +3,6 @@ package stemmer
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
-	"strings"
 )
 
 func TestIsVowel(t *testing.T) {
@@ -45,13 +44,67 @@ func TestSetConsonantY(t *testing.T) {
 }
 
 func TestFindLongestSuffix(t *testing.T) {
-	suffixes := []string{"'", "'s", "'s'"}
+	suffixes := []string{"'", "'s", "'s'"} // suffixes are substrings so the test must find longest
 	words := []string{"there'", "there's", "there's'"}
 	longesetSuffixes := []string{"'", "'s", "'s'"}
+	for i, word := range words {
+		assert.Equal(t, longesetSuffixes[i], FindLongestSuffix(word, suffixes))
+	}
+}
+
+func TestStep0(t *testing.T) {
+	words := []string{"there'", "there's", "there's'"}
 	newWords := []string{"there", "there", "there"}
 	for i, word := range words {
-		suffix := FindLongestSuffix(word, suffixes)
-		assert.Equal(t, longesetSuffixes[i], suffix)
-		assert.Equal(t, newWords[i], strings.TrimSuffix(word, suffix))
+		assert.Equal(t, newWords[i], Step0(word))
+	}
+}
+
+func TestStep1a(t *testing.T) {
+	assert.Equal(t, "blah", Step1a("blah"))
+	assert.Equal(t, "fdass", Step1a("fdasses"))
+	assert.Equal(t, "tie", Step1a("ties"))
+	assert.Equal(t, "cri", Step1a("cries"))
+	assert.Equal(t, "gas", Step1a("gas"))
+	assert.Equal(t, "this", Step1a("this"))
+	assert.Equal(t, "gap", Step1a("gaps"))
+	assert.Equal(t, "kiwi", Step1a("kiwis"))
+}
+
+func TestStep1b(t *testing.T) {
+	assert.Equal(t, "airspee", Step1b("airspeed")) // is this actually a good example?
+	assert.Equal(t, "creed", Step1b("creed"))
+	assert.Equal(t, "luxuriate", Step1b("luxuriatedly"))
+	assert.Equal(t, "hop", Step1b("hopping"))
+	assert.Equal(t, "hope", Step1b("hoping"))
+}
+
+func TestIsEndShortSyllable(t *testing.T) {
+	endShort := []string{"rap", "trap", "entrap", "ow", "on", "at"}
+	notEndShort := []string{"uproot", "bestow", "disturb"}
+	for _, word := range endShort {
+		assert.True(t, IsEndShortSyllable(word))
+	}
+	for _, word := range notEndShort {
+		assert.False(t, IsEndShortSyllable(word))
+	}
+}
+
+func TestIsShortWord(t *testing.T) {
+	shortWords := []string{"bed", "shed", "shred"}
+	notShortWords := []string{"bead", "embed", "beds"}
+	for _, word := range shortWords {
+		assert.True(t, IsShortWord(word))
+	}
+	for _, word := range notShortWords {
+		assert.False(t, IsShortWord(word))
+	}
+}
+
+func TestStep1c(t *testing.T) {
+	words := []string{"cry", "by", "say"}
+	newWords := []string{"cri", "by", "say"}
+	for i, word := range words {
+		assert.Equal(t, newWords[i], Step1c(word))
 	}
 }

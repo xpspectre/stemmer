@@ -8,5 +8,9 @@ import (
 )
 
 func main()  {
-	fmt.Println(stemmer.SetConsonantY("yes"))
+	//R1, R2 := stemmer.GetR1R2("creed")
+	//fmt.Println(R1)
+	//fmt.Println(R2)
+	fmt.Println(stemmer.Step1c("say"))
+	//fmt.Println(strings.HasSuffix("", "ing"))
 }
