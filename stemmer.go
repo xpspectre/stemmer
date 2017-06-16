@@ -26,7 +26,7 @@ var step2Map = map[string]string{
 	"izer": "ize",
 	"ization": "ize",
 	"ational": "ate",
-	"ation": "age",
+	"ation": "ate",
 	"ator": "ate",
 	"alism": "al",
 	"aliti": "al",
@@ -182,6 +182,9 @@ func Step1a(s string) (string) {
 		}
 	case suffix == "s":
 		s_ := strings.TrimSuffix(s, suffix)
+		if len(s_) == 0 {
+			return s
+		}
 		for _, c := range(s_[:len(s_)-1]) { // check all before 1 before suffix
 			if IsVowel(c) {
 				return s_
@@ -221,6 +224,7 @@ func Step1b(s string) (string)  {
 				if IsShortWord(s_) {
 					return s_ + "e"
 				}
+				return s_ // fell thru, no additional stuff after deleting suffix
 			}
 		}
 		return s // fell thru, no vowels in preceding word part
@@ -233,6 +237,9 @@ func Step1b(s string) (string)  {
 func Step1c(s string) (string) {
 	r := []rune(s)
 	rLen := len(r)
+	if rLen < 2 {
+		return s
+	}
 	rLast := r[rLen-1]
 	rNext := r[rLen-2]
 	// is the last check below redundant w/ the 2-letter ignore at the very top?
@@ -296,7 +303,7 @@ func Step4(s string) (string) {
 		return strings.TrimSuffix(s, suffix)
 	}
 	if strings.HasSuffix(R2, "ion") {
-		s_ := strings.TrimSuffix(s, suffix)
+		s_ := strings.TrimSuffix(s, "ion")
 		r := []rune(s_)
 		rLast := r[len(r)-1]
 		if rLast == 's' || rLast == 't' {
@@ -393,6 +400,8 @@ func SetConsonantY(s string) (string) {
 		}
 		if IsVowel(c) {
 			prevIsVowel = true
+		} else {
+			prevIsVowel = false
 		}
 	}
 	return string(r)

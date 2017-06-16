@@ -45,8 +45,8 @@ func TestStem2Letter(t *testing.T) {
 // http://snowball.tartarus.org/texts/vowelmarking.html
 // The last example doesn't show up in english (yy) but illustrates the algorithm
 func TestSetConsonantY(t *testing.T) {
-	words := []string{"yes", "stay", "dyed", "ydyed", "ayyyyy"}
-	newWords := []string{"Yes", "staY", "dyed", "Ydyed", "aYyYyY"}
+	words := []string{"yes", "stay", "dyed", "ydyed", "ayyyyy", "willingly"}
+	newWords := []string{"Yes", "staY", "dyed", "Ydyed", "aYyYyY", "willingly"}
 	for i, word := range words {
 		assert.Equal(t, newWords[i], SetConsonantY(word))
 	}
@@ -86,6 +86,7 @@ func TestStep1b(t *testing.T) {
 	assert.Equal(t, "luxuriate", Step1b("luxuriatedly"))
 	assert.Equal(t, "hop", Step1b("hopping"))
 	assert.Equal(t, "hope", Step1b("hoping"))
+	assert.Equal(t, "resol", Step1b("resoled"))
 }
 
 func TestIsEndShortSyllable(t *testing.T) {
@@ -136,8 +137,8 @@ func TestStep3(t *testing.T) {
 }
 
 func TestStep4(t *testing.T) {
-	words := []string{"vocalize", "materialize", "vocation"}
-	newWords := []string{"vocal", "material", "vocation"}
+	words := []string{"vocalize", "materialize", "vocation", "petition"}
+	newWords := []string{"vocal", "material", "vocat", "petit"}
 	for i, word := range words {
 		assert.Equal(t, newWords[i], Step4(word))
 	}
