@@ -94,9 +94,6 @@ var exceptions2 = map[string]string{
 	"exceed": "exceed",
 	"succeed": "succeed"}
 
-// Overstemming can result from these prefixes
-var R1Exceptions = []string{"gener", "commun", "arsen"}
-
 // Sort strings by decreasing length interfaces
 //	Modified from https://gobyexample.com/sorting-by-functions
 type ByDecLength []string
@@ -251,8 +248,8 @@ func Step1c(s string) (string) {
 
 func Step2(s string) (string){
 	R1 := GetR1(s)
-	suffix := FindLongestSuffix(R1, step2Slice)
-	if suffix != "" {
+	suffix := FindLongestSuffix(s, step2Slice)
+	if suffix != "" && strings.HasSuffix(R1, suffix) {
 		s_ := strings.TrimSuffix(s, suffix)
 		switch suffix {
 		case "ogi":
@@ -278,8 +275,8 @@ func Step2(s string) (string){
 
 func Step3(s string) (string) {
 	R1 := GetR1(s)
-	suffix := FindLongestSuffix(R1, step3Slice)
-	if suffix != "" {
+	suffix := FindLongestSuffix(s, step3Slice)
+	if suffix != "" && strings.HasSuffix(R1, suffix) {
 		s_ := strings.TrimSuffix(s, suffix)
 		switch suffix {
 		case "ative":
@@ -296,10 +293,13 @@ func Step3(s string) (string) {
 	return s
 }
 
+// See https://tartarus.org/martin/PorterStemmer/, Common errors
+//	The suffix is searched for in the original string, the longest is taken (if any are found),
+//	and then the test (in R2) is applied. The in R2 test in applied only once.
 func Step4(s string) (string) {
 	_, R2 := GetR1R2(s)
-	suffix := FindLongestSuffix(R2, step4Words)
-	if suffix != "" {
+	suffix := FindLongestSuffix(s, step4Words)
+	if suffix != "" && strings.HasSuffix(R2, suffix) {
 		return strings.TrimSuffix(s, suffix)
 	}
 	if strings.HasSuffix(R2, "ion") {
@@ -421,6 +421,10 @@ func FindLongestSuffix(s string, suffixes []string) (string) {
 // http://snowball.tartarus.org/texts/r1r2.html
 // R1 is the region after the 1st non-vowel following a vowel, or null region at the end of the word if there isn't	a non-vowel
 // R2 is the region after the 1st non-vowel following a vowel in R1, or null region at the end of the word if there isn't a non-vowel
+
+// Overstemming can result from these prefixes
+var R1Exceptions = []string{"gener", "commun", "arsen"}
+
 func GetR1(s string) (string) {
 	// Handle 3 corner cases
 	for i := 0; i < len(R1Exceptions); i++ {
@@ -440,7 +444,7 @@ func GetR1R2(s string) (string, string) {
 func GetR1R2End(s string) (string) {
 	// Find initial vowels. Start as consonant; then find 1st vowel; then find 1st consonant after that.
 	initialVowel := false
-	R1start := len(s) - 1
+	R1start := len(s) - 1 // default for specifying null region at the end
 	Label:
 	for i, c := range s {
 		switch initialVowel {

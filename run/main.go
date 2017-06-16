@@ -39,6 +39,6 @@ func main() {
 		}
 	}
 	correctWords := totalWords - wrongWords
-	pctCorrect := float64(correctWords) / float64(totalWords)
+	pctCorrect := float64(correctWords) / float64(totalWords) * 100.0
 	fmt.Printf("%d/%d words stemmed correctly = %f%%\n", correctWords, totalWords, pctCorrect)
 }

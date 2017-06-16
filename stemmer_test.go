@@ -137,8 +137,8 @@ func TestStep3(t *testing.T) {
 }
 
 func TestStep4(t *testing.T) {
-	words := []string{"vocalize", "materialize", "vocation", "petition"}
-	newWords := []string{"vocal", "material", "vocat", "petit"}
+	words := []string{"vocalize", "materialize", "vocation", "petition", "basement"}
+	newWords := []string{"vocal", "material", "vocat", "petit", "basement"}
 	for i, word := range words {
 		assert.Equal(t, newWords[i], Step4(word))
 	}

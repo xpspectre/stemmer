@@ -6,8 +6,8 @@ import (
 )
 
 func main()  {
-	word := "basement"
-	stem := "base"
+	word := "basement" // also ornament, firmament
+	stem := "basement"
 	stem_ := stemmer.Stem(word)
 	
 	R1, R2 := stemmer.GetR1R2(word)
