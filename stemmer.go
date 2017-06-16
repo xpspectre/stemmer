@@ -96,14 +96,14 @@ var exceptions2 = map[string]string{
 
 // Sort strings by decreasing length interfaces
 //	Modified from https://gobyexample.com/sorting-by-functions
-type ByDecLength []string
-func (s ByDecLength) Len() int {
+type byDecLength []string
+func (s byDecLength) Len() int {
 	return len(s)
 }
-func (s ByDecLength) Swap(i, j int) {
+func (s byDecLength) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
-func (s ByDecLength) Less(i, j int) bool {
+func (s byDecLength) Less(i, j int) bool {
 	return len(s[i]) > len(s[j]) // reverse order for decreasing sort
 }
 
@@ -136,22 +136,22 @@ func Stem(s string) (string)  {
 	// Remove initial apostrophe
 	s = strings.TrimPrefix(s, "'")
 	
-	s = SetConsonantY(s)
+	s = setConsonantY(s)
 	
-	s = Step0(s)
-	s = Step1a(s)
+	s = step0(s)
+	s = step1a(s)
 	
 	// 2nd set of exceptions after trimming last 's'
 	if stemmed, ok := exceptions2[s]; ok {
 		return stemmed
 	}
 	
-	s = Step1b(s)
-	s = Step1c(s)
-	s = Step2(s)
-	s = Step3(s)
-	s = Step4(s)
-	s = Step5(s)
+	s = step1b(s)
+	s = step1c(s)
+	s = step2(s)
+	s = step3(s)
+	s = step4(s)
+	s = step5(s)
 	
 	// Convert consonanted Y back to y
 	s = strings.Replace(s , "Y", "y", -1)
@@ -159,14 +159,14 @@ func Stem(s string) (string)  {
 	return s
 }
 
-func Step0(s string) (string) {
-	suffix := FindLongestSuffix(s, []string{"'", "'s", "'s'"})
+func step0(s string) (string) {
+	suffix := findLongestSuffix(s, []string{"'", "'s", "'s'"})
 	return strings.TrimSuffix(s, suffix)
 }
 
-func Step1a(s string) (string) {
+func step1a(s string) (string) {
 	//	The last "us" and "ss" are kept because they tell you to do nothing even though it ends in "s"
-	suffix := FindLongestSuffix(s, []string{"sses", "ied", "ies", "s", "us", "ss"})
+	suffix := findLongestSuffix(s, []string{"sses", "ied", "ies", "s", "us", "ss"})
 	switch {
 	case suffix == "sses":
 		return strings.TrimSuffix(s, "sses") + "ss"
@@ -183,7 +183,7 @@ func Step1a(s string) (string) {
 			return s
 		}
 		for _, c := range(s_[:len(s_)-1]) { // check all before 1 before suffix
-			if IsVowel(c) {
+			if isVowel(c) {
 				return s_
 			}
 		}
@@ -195,8 +195,8 @@ func Step1a(s string) (string) {
 	}
 }
 
-func Step1b(s string) (string)  {
-	suffix := FindLongestSuffix(s, []string{"eed", "eedly", "ed", "edly", "ing", "ingly"})
+func step1b(s string) (string)  {
+	suffix := findLongestSuffix(s, []string{"eed", "eedly", "ed", "edly", "ing", "ingly"})
 	switch {
 	case suffix == "eed" || suffix == "eedly":
 		R1 := GetR1(s)
@@ -208,17 +208,17 @@ func Step1b(s string) (string)  {
 	case suffix == "ed" || suffix == "edly" || suffix == "ing" || suffix == "ingly":
 		s_ := strings.TrimSuffix(s, suffix)
 		for _, c := range s_ {
-			if IsVowel(c) {
-				suffix_ := FindLongestSuffix(s_, []string{"at", "bl", "iz"})
+			if isVowel(c) {
+				suffix_ := findLongestSuffix(s_, []string{"at", "bl", "iz"})
 				if suffix_ != "" {
 					return s_ + "e"
 				}
-				suffix_ = FindLongestSuffix(s_, double)
+				suffix_ = findLongestSuffix(s_, double)
 				if suffix_ != "" {
 					r := []rune(s_)
 					return string(r[:len(s_)-1])
 				}
-				if IsShortWord(s_) {
+				if isShortWord(s_) {
 					return s_ + "e"
 				}
 				return s_ // fell thru, no additional stuff after deleting suffix
@@ -231,7 +231,7 @@ func Step1b(s string) (string)  {
 	return s
 }
 
-func Step1c(s string) (string) {
+func step1c(s string) (string) {
 	r := []rune(s)
 	rLen := len(r)
 	if rLen < 2 {
@@ -240,15 +240,15 @@ func Step1c(s string) (string) {
 	rLast := r[rLen-1]
 	rNext := r[rLen-2]
 	// is the last check below redundant w/ the 2-letter ignore at the very top?
-	if (rLast == 'y' || rLast == 'Y') && !IsVowel(rNext) && rLen > 2 {
+	if (rLast == 'y' || rLast == 'Y') && !isVowel(rNext) && rLen > 2 {
 		r[rLen-1] = 'i'
 	}
 	return string(r)
 }
 
-func Step2(s string) (string){
+func step2(s string) (string){
 	R1 := GetR1(s)
-	suffix := FindLongestSuffix(s, step2Slice)
+	suffix := findLongestSuffix(s, step2Slice)
 	if suffix != "" && strings.HasSuffix(R1, suffix) {
 		s_ := strings.TrimSuffix(s, suffix)
 		switch suffix {
@@ -261,7 +261,7 @@ func Step2(s string) (string){
 			}
 		case "li":
 			r := []rune(s_)
-			if IsLiEnding(r[len(r)-1]) {
+			if isLiEnding(r[len(r)-1]) {
 				return s_
 			} else {
 				return s
@@ -273,9 +273,9 @@ func Step2(s string) (string){
 	return s
 }
 
-func Step3(s string) (string) {
+func step3(s string) (string) {
 	R1 := GetR1(s)
-	suffix := FindLongestSuffix(s, step3Slice)
+	suffix := findLongestSuffix(s, step3Slice)
 	if suffix != "" && strings.HasSuffix(R1, suffix) {
 		s_ := strings.TrimSuffix(s, suffix)
 		switch suffix {
@@ -296,9 +296,9 @@ func Step3(s string) (string) {
 // See https://tartarus.org/martin/PorterStemmer/, Common errors
 //	The suffix is searched for in the original string, the longest is taken (if any are found),
 //	and then the test (in R2) is applied. The in R2 test in applied only once.
-func Step4(s string) (string) {
+func step4(s string) (string) {
 	_, R2 := GetR1R2(s)
-	suffix := FindLongestSuffix(s, step4Words)
+	suffix := findLongestSuffix(s, step4Words)
 	if suffix != "" && strings.HasSuffix(R2, suffix) {
 		return strings.TrimSuffix(s, suffix)
 	}
@@ -315,7 +315,7 @@ func Step4(s string) (string) {
 	return s
 }
 
-func Step5(s string) (string) {
+func step5(s string) (string) {
 	if strings.HasSuffix(s, "e") {
 		R1, R2 := GetR1R2(s)
 		if strings.HasSuffix(R2, "e") {
@@ -323,7 +323,7 @@ func Step5(s string) (string) {
 		}
 		if strings.HasSuffix(R1, "e") {
 			s_ := strings.TrimSuffix(s, "e")
-			if !IsEndShortSyllable(s_) {
+			if !isEndShortSyllable(s_) {
 				return s_
 			} else{
 				return s
@@ -345,28 +345,28 @@ func Step5(s string) (string) {
 	return s
 }
 
-func IsVowel(c rune) (bool) {
+func isVowel(c rune) (bool) {
 	return strings.ContainsAny(string(c), vowels)
 }
 
-func IsLiEnding(c rune) (bool) {
+func isLiEnding(c rune) (bool) {
 	return strings.ContainsAny(string(c), liend)
 }
 
 // Search ends of words only
 // Check only/start syllable for short words; else the 3-letter suffix for long words
-func IsEndShortSyllable(s string) (bool) {
+func isEndShortSyllable(s string) (bool) {
 	r := []rune(s)
 	//
 	if len(r) < 3 {
-		if IsVowel(r[0]) && !IsVowel(r[1]) {
+		if isVowel(r[0]) && !isVowel(r[1]) {
 			return true
 		} else {
 			return false
 		}
 	} else {
 		r = r[len(r)-3:]
-		if !IsVowel(r[0]) && IsVowel(r[1]) && !IsVowel(r[2]) && r[2] != 'w' && r[2] !='x' && r[2] != 'Y' {
+		if !isVowel(r[0]) && isVowel(r[1]) && !isVowel(r[2]) && r[2] != 'w' && r[2] !='x' && r[2] != 'Y' {
 			return true
 		} else {
 			return false
@@ -375,9 +375,9 @@ func IsEndShortSyllable(s string) (bool) {
 }
 
 // Short word ends in a short syllable and R1 is null
-func IsShortWord(s string)(bool) {
+func isShortWord(s string)(bool) {
 	R1 := GetR1(s)
-	if IsEndShortSyllable(s) && R1 == "" {
+	if isEndShortSyllable(s) && R1 == "" {
 		return true
 	}
 	return false
@@ -385,7 +385,7 @@ func IsShortWord(s string)(bool) {
 
 // Set consonant y's - initial y or y after a vowel
 // 	Denote consonants as capitalized Y
-func SetConsonantY(s string) (string) {
+func setConsonantY(s string) (string) {
 	r := []rune(s)
 	prevIsVowel := false
 	for i, c := range s {
@@ -398,7 +398,7 @@ func SetConsonantY(s string) (string) {
 			prevIsVowel = false
 			continue
 		}
-		if IsVowel(c) {
+		if isVowel(c) {
 			prevIsVowel = true
 		} else {
 			prevIsVowel = false
@@ -408,8 +408,8 @@ func SetConsonantY(s string) (string) {
 }
 
 // Search among list of suffixes. Returns longest suffix or empty string "" if none are found.
-func FindLongestSuffix(s string, suffixes []string) (string) {
-	sort.Sort(ByDecLength(suffixes))
+func findLongestSuffix(s string, suffixes []string) (string) {
+	sort.Sort(byDecLength(suffixes))
 	for _, suffix := range suffixes {
 		if strings.HasSuffix(s, suffix) {
 			return suffix
@@ -423,25 +423,25 @@ func FindLongestSuffix(s string, suffixes []string) (string) {
 // R2 is the region after the 1st non-vowel following a vowel in R1, or null region at the end of the word if there isn't a non-vowel
 
 // Overstemming can result from these prefixes
-var R1Exceptions = []string{"gener", "commun", "arsen"}
+var r1Exceptions = []string{"gener", "commun", "arsen"}
 
 func GetR1(s string) (string) {
 	// Handle 3 corner cases
-	for i := 0; i < len(R1Exceptions); i++ {
-		if strings.HasPrefix(s, R1Exceptions[i]) {
-			return strings.TrimPrefix(s, R1Exceptions[i])
+	for i := 0; i < len(r1Exceptions); i++ {
+		if strings.HasPrefix(s, r1Exceptions[i]) {
+			return strings.TrimPrefix(s, r1Exceptions[i])
 		}
 	}
-	return GetR1R2End(s)
+	return getR1R2End(s)
 }
 
 func GetR1R2(s string) (string, string) {
 	R1 := GetR1(s)
-	return R1, GetR1R2End(R1)
+	return R1, getR1R2End(R1)
 }
 
 // Getting R1 and R2 is just applying the same procedure
-func GetR1R2End(s string) (string) {
+func getR1R2End(s string) (string) {
 	// Find initial vowels. Start as consonant; then find 1st vowel; then find 1st consonant after that.
 	initialVowel := false
 	R1start := len(s) - 1 // default for specifying null region at the end
@@ -449,12 +449,12 @@ func GetR1R2End(s string) (string) {
 	for i, c := range s {
 		switch initialVowel {
 		case false: // until 1st vowel
-			if IsVowel(c) {
+			if isVowel(c) {
 				initialVowel = true
 			}
 			continue
 		case true: // until 1st consonant after vowel
-			if !IsVowel(c) {
+			if !isVowel(c) {
 				R1start = i
 				break Label  // break defaults to breaking out of switch case
 			}

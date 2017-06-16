@@ -9,7 +9,7 @@ func TestIsVowel(t *testing.T) {
 	letters := []rune{'a', 'b', 'c', 'y'}
 	isVowels := []bool{true, false, false, true}
 	for i, letter := range letters {
-		assert.Equal(t, isVowels[i], IsVowel(letter))
+		assert.Equal(t, isVowels[i], isVowel(letter))
 	}
 }
 
@@ -17,7 +17,7 @@ func TestIsLiEnding(t *testing.T) {
 	letters := []rune{'a', 'b', 'c', 't'}
 	isLiEnds := []bool{false, false, true, true}
 	for i, letter := range letters {
-		assert.Equal(t, isLiEnds[i], IsLiEnding(letter))
+		assert.Equal(t, isLiEnds[i], isLiEnding(letter))
 	}
 }
 
@@ -48,7 +48,7 @@ func TestSetConsonantY(t *testing.T) {
 	words := []string{"yes", "stay", "dyed", "ydyed", "ayyyyy", "willingly"}
 	newWords := []string{"Yes", "staY", "dyed", "Ydyed", "aYyYyY", "willingly"}
 	for i, word := range words {
-		assert.Equal(t, newWords[i], SetConsonantY(word))
+		assert.Equal(t, newWords[i], setConsonantY(word))
 	}
 }
 
@@ -57,7 +57,7 @@ func TestFindLongestSuffix(t *testing.T) {
 	words := []string{"there'", "there's", "there's'"}
 	longesetSuffixes := []string{"'", "'s", "'s'"}
 	for i, word := range words {
-		assert.Equal(t, longesetSuffixes[i], FindLongestSuffix(word, suffixes))
+		assert.Equal(t, longesetSuffixes[i], findLongestSuffix(word, suffixes))
 	}
 }
 
@@ -65,38 +65,38 @@ func TestStep0(t *testing.T) {
 	words := []string{"there'", "there's", "there's'"}
 	newWords := []string{"there", "there", "there"}
 	for i, word := range words {
-		assert.Equal(t, newWords[i], Step0(word))
+		assert.Equal(t, newWords[i], step0(word))
 	}
 }
 
 func TestStep1a(t *testing.T) {
-	assert.Equal(t, "blah", Step1a("blah"))
-	assert.Equal(t, "fdass", Step1a("fdasses"))
-	assert.Equal(t, "tie", Step1a("ties"))
-	assert.Equal(t, "cri", Step1a("cries"))
-	assert.Equal(t, "gas", Step1a("gas"))
-	assert.Equal(t, "this", Step1a("this"))
-	assert.Equal(t, "gap", Step1a("gaps"))
-	assert.Equal(t, "kiwi", Step1a("kiwis"))
+	assert.Equal(t, "blah", step1a("blah"))
+	assert.Equal(t, "fdass", step1a("fdasses"))
+	assert.Equal(t, "tie", step1a("ties"))
+	assert.Equal(t, "cri", step1a("cries"))
+	assert.Equal(t, "gas", step1a("gas"))
+	assert.Equal(t, "this", step1a("this"))
+	assert.Equal(t, "gap", step1a("gaps"))
+	assert.Equal(t, "kiwi", step1a("kiwis"))
 }
 
 func TestStep1b(t *testing.T) {
-	assert.Equal(t, "airspee", Step1b("airspeed")) // is this actually a good example?
-	assert.Equal(t, "creed", Step1b("creed"))
-	assert.Equal(t, "luxuriate", Step1b("luxuriatedly"))
-	assert.Equal(t, "hop", Step1b("hopping"))
-	assert.Equal(t, "hope", Step1b("hoping"))
-	assert.Equal(t, "resol", Step1b("resoled"))
+	assert.Equal(t, "airspee", step1b("airspeed")) // is this actually a good example?
+	assert.Equal(t, "creed", step1b("creed"))
+	assert.Equal(t, "luxuriate", step1b("luxuriatedly"))
+	assert.Equal(t, "hop", step1b("hopping"))
+	assert.Equal(t, "hope", step1b("hoping"))
+	assert.Equal(t, "resol", step1b("resoled"))
 }
 
 func TestIsEndShortSyllable(t *testing.T) {
 	endShort := []string{"rap", "trap", "entrap", "ow", "on", "at"}
 	notEndShort := []string{"uproot", "bestow", "disturb"}
 	for _, word := range endShort {
-		assert.True(t, IsEndShortSyllable(word))
+		assert.True(t, isEndShortSyllable(word))
 	}
 	for _, word := range notEndShort {
-		assert.False(t, IsEndShortSyllable(word))
+		assert.False(t, isEndShortSyllable(word))
 	}
 }
 
@@ -104,10 +104,10 @@ func TestIsShortWord(t *testing.T) {
 	shortWords := []string{"bed", "shed", "shred"}
 	notShortWords := []string{"bead", "embed", "beds"}
 	for _, word := range shortWords {
-		assert.True(t, IsShortWord(word))
+		assert.True(t, isShortWord(word))
 	}
 	for _, word := range notShortWords {
-		assert.False(t, IsShortWord(word))
+		assert.False(t, isShortWord(word))
 	}
 }
 
@@ -115,7 +115,7 @@ func TestStep1c(t *testing.T) {
 	words := []string{"cry", "by", "say"}
 	newWords := []string{"cri", "by", "say"}
 	for i, word := range words {
-		assert.Equal(t, newWords[i], Step1c(word))
+		assert.Equal(t, newWords[i], step1c(word))
 	}
 }
 
@@ -123,7 +123,7 @@ func TestStep2(t *testing.T) {
 	words := []string{"additional", "relational", "yogi", "stimuli"}
 	newWords := []string{"addition", "relate", "yogi", "stimuli"}
 	for i, word := range words {
-		assert.Equal(t, newWords[i], Step2(word))
+		assert.Equal(t, newWords[i], step2(word))
 	}
 }
 
@@ -132,7 +132,7 @@ func TestStep3(t *testing.T) {
 	words := []string{"conditional", "procrastinative"}
 	newWords := []string{"condition", "procrastin"}
 	for i, word := range words {
-		assert.Equal(t, newWords[i], Step3(word))
+		assert.Equal(t, newWords[i], step3(word))
 	}
 }
 
@@ -140,7 +140,7 @@ func TestStep4(t *testing.T) {
 	words := []string{"vocalize", "materialize", "vocation", "petition", "basement"}
 	newWords := []string{"vocal", "material", "vocat", "petit", "basement"}
 	for i, word := range words {
-		assert.Equal(t, newWords[i], Step4(word))
+		assert.Equal(t, newWords[i], step4(word))
 	}
 }
 

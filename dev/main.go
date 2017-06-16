@@ -1,3 +1,5 @@
+// Quick and dirty entry point to testing functionality
+
 package main
 
 import (

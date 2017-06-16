@@ -1,5 +1,5 @@
 // Devel and test framework
-// Read in sample vocab + stems and try out the code
+// Read in big list of vocab + stems and try out the code
 
 package main
 
